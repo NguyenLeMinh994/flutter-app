@@ -10,17 +10,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Welcome",
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("Hello"),
-        ),
-        body: Center(
-          child: RandomWord(),
-        ),
-      ),
-    );
+    return MaterialApp(title: "Welcome", home: RandomWord());
   }
 }
 
@@ -34,18 +24,28 @@ class RandomWordState extends State<RandomWord> {
   final Set<WordPair> _saved = new Set<WordPair>();
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        if (index.isOdd) {
-          return Divider();
-        }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Hello"),
+        actions: <Widget>[
+          new IconButton(icon: const Icon(Icons.list), onPressed: _pushSaved)
+        ],
+      ),
+      body: Center(
+        child: ListView.builder(
+          itemBuilder: (context, index) {
+            if (index.isOdd) {
+              return Divider();
+            }
 
-        if (index >= _words.length) {
-          _words.addAll(generateWordPairs().take(10));
-        }
+            if (index >= _words.length) {
+              _words.addAll(generateWordPairs().take(10));
+            }
 
-        return _buildRow(_words[index]);
-      },
+            return _buildRow(_words[index]);
+          },
+        ),
+      ),
     );
   }
 
@@ -70,5 +70,28 @@ class RandomWordState extends State<RandomWord> {
         });
       },
     );
+  }
+
+  void _pushSaved() {
+    Navigator.of(context)
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
+      final Iterable<ListTile> tiles =
+          _saved.map((WordPair pair) => new ListTile(
+                title: Text(
+                  pair.asPascalCase,
+                  style: _biggestFont,
+                ),
+              ));
+      final List<Widget> divided =
+          ListTile.divideTiles(tiles: tiles, context: context).toList();
+      return new Scaffold(
+        appBar: new AppBar(
+          title: Text("Saved list"),
+        ),
+        body: new ListView(
+          children: divided,
+        ),
+      );
+    }));
   }
 }
